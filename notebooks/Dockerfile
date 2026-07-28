@@ -1,22 +1,23 @@
-FROM python:3.10-slim
+# Base image
+FROM python:3.12-slim
 
+# Set working directory inside container
 WORKDIR /app
 
-# Install operating system dependencies required for compilation tasks
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy dependencies manifest definitions file
+# Copy requirements first (Docker layer caching)
 COPY requirements.txt .
+
+# Install all dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy binary assets and operational source modules
-COPY app/main.py ./app/
-COPY COPY term_deposit_model.pkl .
-COPY scaler.pkl .
+# Copy model artefacts
+COPY models/ ./models/
 
-EXPOSE 8000
+# Copy FastAPI application
+COPY app/main.py .
 
-# Fire up managed high performance web server runtime interface instance
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Expose port 80
+EXPOSE 80
+
+# Start the API server
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
