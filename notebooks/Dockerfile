@@ -1,23 +1,23 @@
 # Base image
 FROM python:3.12-slim
 
-# Set working directory inside container
+# Set working directory
 WORKDIR /app
 
-# Copy requirements first (Docker layer caching)
+# Copy requirements first
 COPY requirements.txt .
 
-# Install all dependencies
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy model artefacts
 COPY models/ ./models/
 
-# Copy FastAPI application
-COPY app/main.py .
+# Copy FastAPI application directly into /app
+COPY app/main.py ./main.py
 
 # Expose port 80
 EXPOSE 80
 
-# Start the API server
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+# Start the API — main.py is directly in /app
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
