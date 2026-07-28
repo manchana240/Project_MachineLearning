@@ -7,10 +7,10 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 # Load all saved artefacts at startup 
-model                = joblib.load("../models/term_deposit_model.pkl")
-preprocessor         = joblib.load("../models/scaler.pkl")
-important_indices    = joblib.load("../models/important_indices.pkl")
-selected_feature_names = joblib.load("../models/selected_feature_names.pkl")
+model                  = joblib.load("models/term_deposit_model.pkl")
+preprocessor           = joblib.load("models/scaler.pkl")
+important_indices      = joblib.load("models/important_indices.pkl")
+selected_feature_names = joblib.load("models/selected_feature_names.pkl")
 
 print("Model loaded successfully")
 print(f"Expecting {len(selected_feature_names)} features after selection")
