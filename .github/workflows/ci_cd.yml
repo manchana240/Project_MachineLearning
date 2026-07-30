@@ -42,3 +42,33 @@ jobs:
           echo "ROC-AUC must be >= 0.78"
           echo "F1-Score must be >= 0.45"
           echo "Quality gate passed"
+  
+  # CD — Push image to AWS ECR 
+  deploy:
+    needs: quality_gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id    : ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region           : eu-west-1
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region eu-west-1 | \
+          docker login --username AWS \
+          --password-stdin 245361884364.dkr.ecr.eu-west-1.amazonaws.com
+
+      - name: Build and push Docker image to ECR
+        run: |
+          docker build -t bank-marketing-prediction .
+          docker tag bank-marketing-prediction:latest \
+          245361884364.dkr.ecr.eu-west-1.amazonaws.com/bank-marketing-prediction:latest
+          docker push \
+          245361884364.dkr.ecr.eu-west-1.amazonaws.com/bank-marketing-prediction:latest
+          echo "Image pushed to ECR successfully"
